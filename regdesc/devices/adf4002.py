@@ -1,5 +1,6 @@
 from ..register import Register, Field
 
+
 class InitLatch(Register):
     control_bits = Field("control bits", width=2, value=3)
     counter_reset = Field("counter reset", width=1, value=0)
@@ -65,11 +66,13 @@ class Device:
 
     @classmethod
     def muxout_ctrl(cls):
-        return ["3-STATE",
-                "DIGITAL_LD",
-                "N_DIV",
-                "DVDD",
-                "R_DIV",
-                "ANALOG_LD",
-                "SDO",
-                "DGND"][cls.function_latch.muxout_ctrl]
+        return [
+            "3-STATE",
+            "DIGITAL_LD",
+            "N_DIV",
+            "DVDD",
+            "R_DIV",
+            "ANALOG_LD",
+            "SDO",
+            "DGND",
+        ][cls.function_latch.muxout_ctrl]

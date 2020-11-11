@@ -17,8 +17,7 @@ class FieldDescriptor:
     def __set__(self, reg, value):
         assert value.bit_length() <= self.width
 
-        reg.storage = (reg.storage & ~self.mask) | \
-          ((value << self.shift) & self.mask)
+        reg.storage = (reg.storage & ~self.mask) | ((value << self.shift) & self.mask)
 
 
 class Field:
@@ -49,7 +48,7 @@ class RegisterMeta(type):
                 dct[key] = FieldDescriptor(shift, attr.width)
                 dct["initial_value"] += attr.value << shift
                 shift += attr.width
-                
+
         dct["_fields"] = collections.OrderedDict(attrs)
         dct["width"] = shift
 
@@ -79,6 +78,9 @@ class Register(metaclass=RegisterMeta):
 
     @property
     def fields(self):
-        return collections.OrderedDict([
-            (field.name, hex(getattr(self, key)))
-            for key, field in self._fields.items()])
+        return collections.OrderedDict(
+            [
+                (field.name, hex(getattr(self, key)))
+                for key, field in self._fields.items()
+            ]
+        )

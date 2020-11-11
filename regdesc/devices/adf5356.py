@@ -113,7 +113,7 @@ class R11(Register):
 
 class R12(Register):
     control_bits = Field("control bits", width=4, value=12)
-    _reserved = Field("reserved", width=8, value=0x5f)
+    _reserved = Field("reserved", width=8, value=0x5F)
     phase_resync_clk_value = Field("phase resync clock value", width=20)
 
 
@@ -138,26 +138,26 @@ class Device:
     r11 = R11()
     r12 = R12()
     r13 = R13()
-    
+
     @classmethod
     def f_pfd(cls, f_ref):
         p = cls.r_params()
-        return f_ref * ((1+p.d) / (p.r * (1+p.t)))
+        return f_ref * ((1 + p.d) / (p.r * (1 + p.t)))
 
     @classmethod
     def f_vco(cls, f_ref):
         f_pfd = cls.f_pfd(f_ref)
         p = cls.pll_params()
-        return f_pfd * (p.int + (p.frac1 + p.frac2/p.mod2) / p.mod1)
+        return f_pfd * (p.int + (p.frac1 + p.frac2 / p.mod2) / p.mod1)
 
     @classmethod
     def f_outA(cls, f_ref):
-        div = (1 << cls.r6.rf_divider_select)
+        div = 1 << cls.r6.rf_divider_select
         return cls.f_vco(f_ref) / div
 
     @classmethod
     def f_outB(cls, f_ref):
-        return 2*cls.f_vco(f_ref)
+        return 2 * cls.f_vco(f_ref)
 
     @classmethod
     def pll_params(cls):
@@ -166,22 +166,24 @@ class Device:
             frac1=cls.r1.main_frac_value,
             frac2=(cls.r13.aux_frac_msb_value << 14) + cls.r2.aux_frac_lsb_value,
             mod1=(1 << 24),
-            mod2=(cls.r13.aux_mod_msb_value << 14) + cls.r2.aux_mod_lsb_value)
+            mod2=(cls.r13.aux_mod_msb_value << 14) + cls.r2.aux_mod_lsb_value,
+        )
 
     @classmethod
     def r_params(cls):
         return SimpleNamespace(
-            d=cls.r4.r_doubler,
-            r=cls.r4.r_counter,
-            t=cls.r4.r_divider)
+            d=cls.r4.r_doubler, r=cls.r4.r_counter, t=cls.r4.r_divider
+        )
 
     @classmethod
     def muxout_ctrl(cls):
-        return ["3-STATE",
-                "DVDD",
-                "SDGND",
-                "R_DIV",
-                "N_DIV",
-                "ANALOG_LD",
-                "DIGITAL_LD",
-                "RESERVED"][cls.r4.muxout]
+        return [
+            "3-STATE",
+            "DVDD",
+            "SDGND",
+            "R_DIV",
+            "N_DIV",
+            "ANALOG_LD",
+            "DIGITAL_LD",
+            "RESERVED",
+        ][cls.r4.muxout]

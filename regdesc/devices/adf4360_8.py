@@ -6,8 +6,7 @@ class ControlLatch(Register):
     core_power_level = Field("core power level", width=2, value=1)
     counter_reset = Field("counter reset", width=1, value=0)
     muxout_ctrl = Field("muxout control", width=3, value=0)
-    phase_detector_polarity = Field("phase detector polarity",
-                                    width=1, value=1)
+    phase_detector_polarity = Field("phase detector polarity", width=1, value=1)
     cp_three_state = Field("cp three-state", width=1, value=0)
     cp_gain = Field("cp gain", width=1, value=0)
     mute_till_ld = Field("mute till lockdetect", width=1, value=1)
@@ -32,10 +31,8 @@ class NCounterLatch(Register):
 class RCounterLatch(Register):
     control_bits = Field("control bits", width=2, value=1)
     r_counter = Field("14-bit reference counter", width=14, value=0)
-    anti_backlash_width = Field("anti-backlash pulse width",
-                                width=2, value=0)
-    lock_detect_precision = Field("lock detect precision",
-                                  width=1, value=0)
+    anti_backlash_width = Field("anti-backlash pulse width", width=2, value=0)
+    lock_detect_precision = Field("lock detect precision", width=1, value=0)
     test_mode_bit = Field("test mode bit", width=1, value=0)
     band_select_clock = Field("band select clock", width=2, value=0)
     _reserved0 = Field("reserved", width=1, value=0)
@@ -58,11 +55,13 @@ class Device:
 
     @classmethod
     def muxout_ctrl(cls):
-        return ["3-STATE",
-                "DIGITAL_LD",
-                "N_DIV",
-                "DVDD",
-                "R_DIV",
-                "RESERVED",
-                "RESERVED",
-                "DGND"][cls.control_latch.muxout_ctrl]
+        return [
+            "3-STATE",
+            "DIGITAL_LD",
+            "N_DIV",
+            "DVDD",
+            "R_DIV",
+            "RESERVED",
+            "RESERVED",
+            "DGND",
+        ][cls.control_latch.muxout_ctrl]
