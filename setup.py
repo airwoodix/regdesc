@@ -8,4 +8,5 @@ setup(
     license="GPLv3",
     use_scm_version=True,
     packages=["regdesc", "regdesc.devices"],
+    test_suite="regdesc.tests",
 )

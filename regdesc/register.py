@@ -1,87 +1,119 @@
-import collections
-from . import utils
+from dataclasses import dataclass, field as dataclass_field
+from typing import Optional
+
+__all__ = ["Field", "Register"]
 
 
 class FieldDescriptor:
-    def __init__(self, shift, width, reset_value):
-        self.shift = int(shift)
-        self.width = int(width)
-        self.reset_value = int(reset_value)
-        self.mask = ((1 << self.width) - 1) << self.shift
+    def __init__(self, field):
+        self._field = field
 
     def __get__(self, reg, owner):
         if reg is None:
             return self
 
-        return (reg.storage & self.mask) >> self.shift
+        return (reg.value >> self._field.shift) & self._field.mask
 
     def __set__(self, reg, value):
-        assert value.bit_length() <= self.width
+        if self._field.readonly:
+            raise NotImplementedError("read only field")
 
-        reg.storage = (reg.storage & ~self.mask) | ((value << self.shift) & self.mask)
+        _check_size(value, self._field.width)
+
+        reg.value = (reg.value & ~(self._field.mask << self._field.shift)) | (
+            (value & self._field.mask) << self._field.shift
+        )
 
 
+@dataclass
 class Field:
-    def __init__(self, name, *, width, value=0):
-        self.name = name.upper()
-        self.width = int(width)
-        self.value = int(value)
+    """
+    A bit field in a register
+    """
 
-        assert self.width > 0
-        assert self.value.bit_length() <= self.width
+    width: int = 1
+    reset: int = 0
+    readonly: bool = False
+    doc: Optional[str] = None
+
+    mask: int = dataclass_field(init=False)
+    shift: int = dataclass_field(init=False)
+
+    def __post_init__(self):
+        object.__setattr__(self, "width", int(self.width))
+        if self.width < 1:
+            raise ValueError("width < 1")
+
+        object.__setattr__(self, "reset", int(self.reset))
+        if self.reset.bit_length() > self.width:
+            raise ValueError("reset value too large")
+        elif self.reset < 0:
+            raise ValueError("negative reset")
 
 
 class RegisterMeta(type):
-    @classmethod
-    def __prepare__(cls, name, bases):
-        return collections.OrderedDict()
-
-    def __new__(cls, name, bases, dct):
-        # iterate through class attributes and transform
-        # `Field` instances into corresponding descriptors
+    def __new__(cls, cls_name, bases, dct):
         shift = 0
-        dct["reset_value"] = 0
-        attrs = []
+        reg_reset = 0
+        fields = {}
 
-        for key, attr in dct.items():
-            if isinstance(attr, Field):
-                attrs.append((key, attr))
-                dct[key] = FieldDescriptor(shift, attr.width, attr.value)
-                dct["reset_value"] += attr.value << shift
-                shift += attr.width
+        for name, field in dct.items():
+            if isinstance(field, Field):
+                field.mask = (1 << field.width) - 1
+                field.shift = shift
+                dct[name] = FieldDescriptor(field)
+                fields[name] = field
 
-        dct["_fields"] = collections.OrderedDict(attrs)
-        dct["width"] = shift
+                reg_reset |= field.reset << shift
+                shift += field.width
+
+        if cls_name != "Register":
+            if "__address__" not in dct:
+                if "control_bits" in fields:
+                    assert fields["control_bits"].readonly
+                    dct["__address__"] = fields["control_bits"].reset
+                elif "address" in fields:
+                    assert fields["address"].readonly
+                    dct["__address__"] = fields["address"].reset
+                else:
+                    raise ValueError("missing address")
+
+        dct["__register_fields__"] = fields
+        dct["__width__"] = shift
+        dct["__reset__"] = reg_reset
 
         return type.__new__(cls, name, bases, dct)
 
 
 class Register(metaclass=RegisterMeta):
-    def __init__(self, *, reset_value=None, **kwds):
-        # override default reset value
-        if reset_value is not None:
-            reset_value = int(reset_value)
-            if reset_value.bit_length() >= self.width:
-                raise ValueError("reset_value too long")
-            self.reset_value = reset_value
+    """
+    A hardware register
+    """
 
-        self.storage = self.reset_value
+    def __init__(self, *, reset=None, **kwds):
+        if reset is not None:
+            reset = int(reset)
+            _check_size(reset, self.__width__)
+            self.__reset__ = reset
 
-        # override default field values with passed keywords
+        self.value = self.__reset__
+
         for name, value in kwds.items():
             setattr(self, name, value)
 
-    def __str__(self):
-        return utils.bin(self.storage, self.width)
-
     def __int__(self):
-        return self.storage
+        return self.value
 
-    @property
-    def fields(self):
-        return collections.OrderedDict(
-            [
-                (field.name, hex(getattr(self, key)))
-                for key, field in self._fields.items()
-            ]
-        )
+    def fields(self, *, show_reserved=False, hex_values=True):
+        process_value = hex if hex_values else int
+
+        return {
+            key: process_value(getattr(self, key))
+            for key in self.__register_fields__.keys()
+            if show_reserved or not key.startswith("_")
+        }
+
+
+def _check_size(value, width):
+    if value.bit_length() > width:
+        raise ValueError("value too large")

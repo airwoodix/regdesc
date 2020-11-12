@@ -1,71 +1,65 @@
 from ..register import Register, Field
+from .device import device
 
 
 class InitLatch(Register):
-    control_bits = Field("control bits", width=2, value=3)
-    counter_reset = Field("counter reset", width=1, value=0)
-    power_down_1 = Field("power-down 1", width=1, value=0)
-    muxout_ctrl = Field("muxout control", width=3, value=1)
-    pd_polarity = Field("PD polarity", width=1, value=1)
-    cp_three_state = Field("CP three-state", width=1, value=0)
-    fastlock_enable = Field("fastlock enable", width=1, value=0)
-    fastlock_mode = Field("fastlock mode", width=1, value=0)
-    timer_counter_control = Field("timer counter control", width=4, value=0)
-    current_setting_1 = Field("current setting 1", width=3, value=7)
-    current_setting_2 = Field("current setting 2", width=3, value=7)
-    power_down_2 = Field("power-down 2", width=1, value=0)
-    _reserved0 = Field("reserved", width=2, value=0)
+    control_bits = Field(2, reset=3, readonly=True)
+    counter_reset = Field(doc="counter reset")
+    power_down_1 = Field(doc="power-down 1")
+    muxout_ctrl = Field(3, doc="muxout control")
+    pd_polarity = Field(reset=1, doc="PD polarity")
+    cp_three_state = Field(doc="charge pump three-state")
+    fastlock_enable = Field(doc="fastlock enable")
+    fastlock_mode = Field(doc="fastlock mode")
+    timer_counter_control = Field(4, doc="timer counter control")
+    current_setting_1 = Field(3, reset=7, doc="current setting 1")
+    current_setting_2 = Field(3, reset=7, doc="current setting 2")
+    power_down_2 = Field(doc="power-down 2")
+    _reserved0 = Field(2, readonly=True)
 
 
-class FunctionLatch(Register):
-    control_bits = Field("control bits", width=2, value=2)
-    counter_reset = Field("counter reset", width=1, value=0)
-    power_down_1 = Field("power-down 1", width=1, value=0)
-    muxout_ctrl = Field("muxout control", width=3, value=1)
-    pd_polarity = Field("PD polarity", width=1, value=1)
-    cp_three_state = Field("CP three-state", width=1, value=0)
-    fastlock_enable = Field("fastlock enable", width=1, value=0)
-    fastlock_mode = Field("fastlock mode", width=1, value=0)
-    timer_counter_control = Field("timer counter control", width=4, value=0)
-    current_setting_1 = Field("current setting 1", width=3, value=7)
-    current_setting_2 = Field("current setting 2", width=3, value=7)
-    power_down_2 = Field("power-down 2", width=1, value=0)
-    _reserved0 = Field("reserved", width=2, value=0)
+class FunctionLatch(InitLatch):
+    control_bits = Field(2, reset=2, readonly=True)
+    counter_reset = Field(doc="counter reset")
+    power_down_1 = Field(doc="power-down 1")
+    muxout_ctrl = Field(3, doc="muxout control")
+    pd_polarity = Field(reset=1, doc="PD polarity")
+    cp_three_state = Field(doc="charge pump three-state")
+    fastlock_enable = Field(doc="fastlock enable")
+    fastlock_mode = Field(doc="fastlock mode")
+    timer_counter_control = Field(4, doc="timer counter control")
+    current_setting_1 = Field(3, reset=7, doc="current setting 1")
+    current_setting_2 = Field(3, reset=7, doc="current setting 2")
+    power_down_2 = Field(doc="power-down 2")
+    _reserved0 = Field(2, readonly=True)
 
 
 class NCounterLatch(Register):
-    control_bits = Field("control bits", width=2, value=1)
-    _reserved0 = Field("reserved", width=6, value=0)
-    n_counter = Field("13-bit N counter", width=13, value=8)
-    cp_gain = Field("CP gain", width=1, value=0)
-    _reserved1 = Field("reserved_", width=2, value=0)
+    control_bits = Field(2, reset=1, readonly=True)
+    _reserved0 = Field(6, readonly=True)
+    n_counter = Field(13, reset=8, doc="13-bit N counter")
+    cp_gain = Field(doc="charge pump gain")
+    _reserved1 = Field(2, readonly=True)
 
 
 class RCounterLatch(Register):
-    control_bits = Field("control bits", width=2, value=0)
-    r_counter = Field("14-bit reference counter", width=14, value=1)
-    anti_backlash_width = Field("anti-backlash width", width=2, value=0)
-    test_mode = Field("test mode bits", width=2, value=0)
-    lock_detect_precision = Field("lock detect precision", width=1, value=0)
-    _reserved0 = Field("reserved", width=3, value=0)
+    control_bits = Field(2, readonly=True)
+    r_counter = Field(14, reset=1, doc="14-bit reference counter")
+    anti_backlash_width = Field(2, doc="anti-backlash width")
+    test_mode = Field(2, doc="test mode bits")
+    lock_detect_precision = Field(doc="lock detect precision")
+    _reserved0 = Field(3, readonly=True)
 
 
-class Device:
-    init_latch = InitLatch()
-    function_latch = FunctionLatch()
-    r_counter_latch = RCounterLatch()
-    n_counter_latch = NCounterLatch()
+@device
+class ADF4002:
+    def f_pfd(self, f_ref):
+        return f_ref / self.r_counter_latch.r_counter
 
-    @classmethod
-    def f_pfd(cls, f_ref):
-        return f_ref / cls.r_counter_latch.r_counter
+    def f_vco(self, f_ref):
+        return self.f_pfd(f_ref) * self.n_counter_latch.n_counter
 
-    @classmethod
-    def f_vco(cls, f_ref):
-        return cls.f_pfd(f_ref) * cls.n_counter_latch.n_counter
-
-    @classmethod
-    def muxout_ctrl(cls):
+    def muxout_ctrl(self):
         return [
             "3-STATE",
             "DIGITAL_LD",
@@ -75,4 +69,4 @@ class Device:
             "ANALOG_LD",
             "SDO",
             "DGND",
-        ][cls.function_latch.muxout_ctrl]
+        ][self.function_latch.muxout_ctrl]

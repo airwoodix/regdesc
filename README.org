@@ -1,0 +1,65 @@
+* regdesc - pythonic register map descriptors
+
+=regdesc= is
+
+1. a simple framework to *describe hardware register maps* with Python
+
+   ... see the already described [[file:regdesc/devices][devices]]. Use a real programming language (Python) to describe your register maps!
+
+   Pull requests adding chip support are very welcome! Please always add simple sanity checks in [[file:regdesc/tests][regdesc/tests]].
+
+2. a pythonic *register value calculator*
+
+   ... based on Python [[https://docs.python.org/3/howto/descriptor.html][descriptors]]
+
+   For example:
+
+#+begin_src python
+  from pprint import pprint
+  from regdesc.devices.adf4002 import ADF4002
+
+  pll = ADF4002()
+  pll.r_counter_latch.r_counter = 10
+  pll.n_counter_latch.n_counter = 100
+
+  f_ref = 10e6  # 10 MHz reference frequency
+  print(f"PFD frequency: {pll.f_pfd(f_ref)/1e6:.0f} MHz")
+  print(f"VCO frequency: {pll.f_vco(f_ref)/1e6:.0f} MHz")
+
+  pll.function_latch.muxout_ctrl = 1  # digital lock-detect
+
+  # show a register's field values
+  print()
+  print("Function latch:")
+  pprint(pll.function_latch.fields())
+
+  # access a register's value, e.g. for writing
+  mcu.write_adf4002_reg(pll.function_latch.value)
+#+end_src
+
+prints
+
+#+begin_example
+PFD frequency: 1 MHz
+VCO frequency: 100 MHz
+
+Function latch:
+{'control_bits': '0x2',
+ 'counter_reset': '0x0',
+ 'cp_three_state': '0x0',
+ 'current_setting_1': '0x7',
+ 'current_setting_2': '0x7',
+ 'fastlock_enable': '0x0',
+ 'fastlock_mode': '0x0',
+ 'muxout_ctrl': '0x1',
+ 'pd_polarity': '0x1',
+ 'power_down_1': '0x0',
+ 'power_down_2': '0x0',
+ 'timer_counter_control': '0x0'}
+#+end_example
+
+3. (not yet) a *code generator*
+
+   ... to generate register access code in your favorite language, also in no-magic Python.
+
+   This functionality is similar to [[https://github.com/google/cyanobyte][cyanobyte]]. =regdesc= however only calculates register values and does not handle the communication with the device, which provides more platform independence.

@@ -1,182 +1,163 @@
-from ..register import Register, Field
 from types import SimpleNamespace
+
+from ..register import Register, Field
+from .device import device
 
 
 class R0(Register):
-    control_bits = Field("control bits", width=4, value=0)
-    int_value = Field("16-bit integer value", width=16)
-    prescaler = Field("prescaler", width=1)
-    autocal = Field("autocal", width=1)
-    _reserved = Field("reserved", width=10)
+    control_bits = Field(4, readonly=True)
+    int_value = Field(16, doc="16-bit integer value")
+    prescaler = Field(doc="prescaler")
+    autocal = Field(doc="autocal")
+    _reserved0 = Field(10)
 
 
 class R1(Register):
-    control_bits = Field("control bits", width=4, value=1)
-    main_frac_value = Field("24-bit main fractional value", width=24)
-    _reserved = Field("reserved", width=4)
+    control_bits = Field(4, reset=1, readonly=True)
+    main_frac_value = Field(24, doc="24-bit main fractional value")
+    _reserved0 = Field(4, readonly=True)
 
 
 class R2(Register):
-    control_bits = Field("control bits", width=4, value=2)
-    aux_mod_lsb_value = Field("14-bit auxiliary modulus LSB value", width=14)
-    aux_frac_lsb_value = Field("14-bit auxiliary fractional LSB value", width=14)
+    control_bits = Field(4, reset=2, readonly=True)
+    aux_mod_lsb_value = Field(14, doc="14-bit auxiliary modulus LSB value")
+    aux_frac_lsb_value = Field(14, doc="14-bit auxiliary fractional LSB value")
 
 
 class R3(Register):
-    control_bits = Field("control bits", width=4, value=3)
-    phase_value = Field("24-bit phase value", width=24)
-    phase_adjust = Field("phase adjust", width=1)
-    phase_resync = Field("phase resync", width=1)
-    sd_load_reset = Field("SD load reset", width=1)
-    _reserved = Field("reserved", width=1)
+    control_bits = Field(4, reset=3, readonly=True)
+    phase_value = Field(24, doc="24-bit phase value")
+    phase_adjust = Field(doc="phase adjust")
+    phase_resync = Field(doc="phase resync")
+    sd_load_reset = Field(doc="SD load reset")
+    _reserved0 = Field(readonly=True)
 
 
 class R4(Register):
-    control_bits = Field("control bits", width=4, value=4)
-    counter_reset = Field("counter reset", width=1)
-    cp_three_state = Field("CP three state", width=1)
-    power_down = Field("Power-down", width=1)
-    pd_polarity = Field("PD polarity", width=1)
-    mux_logic = Field("MUX logic", width=1)
-    ref_mode = Field("REF mode", width=1)
-    current_setting = Field("current setting", width=4)
-    double_buff = Field("double buff", width=1)
-    r_counter = Field("10-bit R counter", width=10)
-    r_divider = Field("reference divider", width=1)
-    r_doubler = Field("reference doubler", width=1)
-    muxout = Field("muxout", width=3)
-    _reserved = Field("reserved", width=2)
+    control_bits = Field(4, reset=4, readonly=True)
+    counter_reset = Field(doc="counter reset")
+    cp_three_state = Field(doc="charge pump three state")
+    power_down = Field(doc="Power-down")
+    pd_polarity = Field(doc="Phase detector polarity")
+    mux_logic = Field(doc="MUX logic")
+    ref_mode = Field(doc="REF mode")
+    current_setting = Field(4, doc="current setting")
+    double_buff = Field(doc="double buff")
+    r_counter = Field(10, doc="10-bit R counter")
+    r_divider = Field(doc="reference divider enable")
+    r_doubler = Field(doc="reference doubler_enable")
+    muxout = Field(3, doc="muxout control")
+    _reserved0 = Field(2, readonly=True)
 
 
 class R5(Register):
-    control_bits = Field("control bits", width=4, value=5)
-    _reserved = Field("reserved", width=28)
+    control_bits = Field(4, reset=5, readonly=True)
+    _reserved0 = Field(28, reset=0x800020, readonly=True)
 
 
 class R6(Register):
-    control_bits = Field("control bits", width=4, value=6)
-    rf_output_a_power = Field("RF output A power", width=2)
-    rf_output_a_enable = Field("RF output A enable", width=1)
-    _reserved0 = Field("reserved", width=3)
-    rf_output_b_enable = Field("RF output B enable", width=1)
-    mute_till_ld = Field("MTLD", width=1)
-    _reserved1 = Field("reserved", width=1)
-    cp_bleed_current = Field("charge pump bleed current", width=8)
-    rf_divider_select = Field("RF divider select", width=3)
-    fb_select = Field("feedback select", width=1)
-    _reserved2 = Field("reserved", width=4, value=0b1010)
-    negative_bleed = Field("negative bleed", width=1)
-    gate_bleed = Field("gate bleed", width=1)
-    bleed_polarity = Field("bleed polarity", width=1)
+    control_bits = Field(4, reset=6, readonly=True)
+    rf_output_a_power = Field(2, doc="RF output A power")
+    rf_output_a_enable = Field(doc="RF output A enable")
+    _reserved0 = Field(3, readonly=True)
+    rf_output_b_enable = Field(doc="RF output B enable")
+    mute_till_ld = Field(doc="Mute till lock-detect")
+    _reserved1 = Field(readonly=True)
+    cp_bleed_current = Field(8, doc="charge pump bleed current")
+    rf_divider_select = Field(3, doc="RF divider select")
+    fb_select = Field(doc="feedback select")
+    _reserved2 = Field(4, reset=0b1010, readonly=True)
+    negative_bleed = Field(doc="negative bleed")
+    gate_bleed = Field(doc="gate bleed")
+    bleed_polarity = Field(doc="bleed polarity")
 
 
 class R7(Register):
-    control_bits = Field("control bits", width=4, value=7)
-    ld_mode = Field("lockdetect mode", width=1)
-    frac_n_ld_precision = Field("frac-n lockdetect precision", width=2)
-    lol_mode = Field("lol mode", width=1)
-    ld_cycle_count = Field("lockdetect cycle count", width=2)
-    _reserved0 = Field("reserved", width=15)
-    le_sync = Field("LE sync", width=1)
-    _reserved1 = Field("reserved", width=1, value=1)
-    le_sel_sync_edge = Field("LE selection sync edge", width=1)
-    _reserved2 = Field("reserved", width=4)
+    control_bits = Field(4, reset=7, readonly=True)
+    ld_mode = Field(doc="lockdetect mode")
+    frac_n_ld_precision = Field(2, doc="frac-n lockdetect precision")
+    lol_mode = Field(doc="lol mode")
+    ld_cycle_count = Field(2, doc="lockdetect cycle count")
+    _reserved0 = Field(15, readonly=True)
+    le_sync = Field(doc="LE sync")
+    _reserved1 = Field(reset=1, readonly=True)
+    le_sel_sync_edge = Field(doc="LE selection sync edge")
+    _reserved2 = Field(4, readonly=True)
 
 
 class R8(Register):
-    control_bits = Field("control bits", width=4, value=8)
-    _reserved = Field("reserved", width=28, value=0x1559656)
+    control_bits = Field(4, reset=8, readonly=True)
+    _reserved = Field(28, reset=0x1559656, readonly=True)
 
 
 class R9(Register):
-    control_bits = Field("control bits", width=4, value=9)
-    synth_lock_timeout = Field("synthesizer lock timeout", width=5)
-    autocal_timeout = Field("automatic level calibration timeout", width=5)
-    timeout = Field("timeout", width=10)
-    vco_band_division = Field("VCO band division", width=8)
+    control_bits = Field(4, reset=9, readonly=True)
+    synth_lock_timeout = Field(5, doc="synthesizer lock timeout")
+    autocal_timeout = Field(5, doc="automatic level calibration timeout")
+    timeout = Field(10, doc="timeout")
+    vco_band_division = Field(8, doc="VCO band division")
 
 
 class R10(Register):
-    control_bits = Field("control_bits", width=4, value=10)
-    adc_enable = Field("ADC enable", width=1)
-    adc_conv = Field("ADC conversion", width=1)
-    adc_clk_div = Field("ADC clock divider", width=8)
-    _reserved = Field("reserved", width=18, value=0x300)
+    control_bits = Field(4, reset=10, readonly=True)
+    adc_enable = Field(doc="ADC enable")
+    adc_conv = Field(doc="ADC conversion")
+    adc_clk_div = Field(8, doc="ADC clock divider")
+    _reserved0 = Field(18, reset=0x300, readonly=True)
 
 
 class R11(Register):
-    control_bits = Field("control bits", width=4, value=11)
-    _reserved0 = Field("reserved", width=20, value=0x61200)
-    vco_band_hold = Field("VCO band hold", width=1)
-    _reserved1 = Field("reserved", width=7)
+    control_bits = Field(4, reset=11, readonly=True)
+    _reserved0 = Field(20, reset=0x61200, readonly=True)
+    vco_band_hold = Field(doc="VCO band hold")
+    _reserved1 = Field(7, readonly=True)
 
 
 class R12(Register):
-    control_bits = Field("control bits", width=4, value=12)
-    _reserved = Field("reserved", width=8, value=0x5F)
-    phase_resync_clk_value = Field("phase resync clock value", width=20)
+    control_bits = Field(4, reset=12, readonly=True)
+    _reserved = Field(8, reset=0x5F, readonly=True)
+    phase_resync_clk_value = Field(20, doc="phase resync clock value")
 
 
 class R13(Register):
-    control_bits = Field("control bits", width=4, value=13)
-    aux_mod_msb_value = Field("14-bit auxiliary modulus MSB value", width=14)
-    aux_frac_msb_value = Field("14-bit auxiliary fractional MSB value", width=14)
+    control_bits = Field(4, reset=13, readonly=True)
+    aux_mod_msb_value = Field(14, doc="14-bit auxiliary modulus MSB value")
+    aux_frac_msb_value = Field(14, doc="14-bit auxiliary fractional MSB value")
 
 
-class Device:
-    r0 = R0()
-    r1 = R1()
-    r2 = R2()
-    r3 = R3()
-    r4 = R4()
-    r5 = R5()
-    r6 = R6()
-    r7 = R7()
-    r8 = R8()
-    r9 = R9()
-    r10 = R10()
-    r11 = R11()
-    r12 = R12()
-    r13 = R13()
-
-    @classmethod
-    def f_pfd(cls, f_ref):
-        p = cls.r_params()
+@device
+class ADF5356:
+    def f_pfd(self, f_ref):
+        p = self.r_params()
         return f_ref * ((1 + p.d) / (p.r * (1 + p.t)))
 
-    @classmethod
-    def f_vco(cls, f_ref):
-        f_pfd = cls.f_pfd(f_ref)
-        p = cls.pll_params()
+    def f_vco(self, f_ref):
+        f_pfd = self.f_pfd(f_ref)
+        p = self.pll_params()
         return f_pfd * (p.int + (p.frac1 + p.frac2 / p.mod2) / p.mod1)
 
-    @classmethod
-    def f_outA(cls, f_ref):
-        div = 1 << cls.r6.rf_divider_select
-        return cls.f_vco(f_ref) / div
+    def f_outA(self, f_ref):
+        div = 1 << self.r6.rf_divider_select
+        return self.f_vco(f_ref) / div
 
-    @classmethod
-    def f_outB(cls, f_ref):
-        return 2 * cls.f_vco(f_ref)
+    def f_outB(self, f_ref):
+        return 2 * self.f_vco(f_ref)
 
-    @classmethod
-    def pll_params(cls):
+    def pll_params(self):
         return SimpleNamespace(
-            int=cls.r0.int_value,
-            frac1=cls.r1.main_frac_value,
-            frac2=(cls.r13.aux_frac_msb_value << 14) + cls.r2.aux_frac_lsb_value,
+            int=self.r0.int_value,
+            frac1=self.r1.main_frac_value,
+            frac2=(self.r13.aux_frac_msb_value << 14) + self.r2.aux_frac_lsb_value,
             mod1=(1 << 24),
-            mod2=(cls.r13.aux_mod_msb_value << 14) + cls.r2.aux_mod_lsb_value,
+            mod2=(self.r13.aux_mod_msb_value << 14) + self.r2.aux_mod_lsb_value,
         )
 
-    @classmethod
-    def r_params(cls):
+    def r_params(self):
         return SimpleNamespace(
-            d=cls.r4.r_doubler, r=cls.r4.r_counter, t=cls.r4.r_divider
+            d=self.r4.r_doubler, r=self.r4.r_counter, t=self.r4.r_divider
         )
 
-    @classmethod
-    def muxout_ctrl(cls):
+    def muxout_ctrl(self):
         return [
             "3-STATE",
             "DVDD",
@@ -186,4 +167,4 @@ class Device:
             "ANALOG_LD",
             "DIGITAL_LD",
             "RESERVED",
-        ][cls.r4.muxout]
+        ][self.r4.muxout]
