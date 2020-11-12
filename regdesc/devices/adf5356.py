@@ -1,3 +1,8 @@
+"""
+ADF5356 GHz PLL
+https://www.analog.com/en/products/adf5356.html
+"""
+
 from types import SimpleNamespace
 
 from ..register import Register, Field

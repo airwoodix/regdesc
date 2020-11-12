@@ -1,3 +1,8 @@
+"""
+ADF4360-8 integer-N PLL
+https://www.analog.com/en/products/adf4360-8.html
+"""
+
 from ..register import Register, Field
 from .device import device
 

@@ -1,3 +1,8 @@
+"""
+ADF4002 integer-N PLL
+https://www.analog.com/en/products/adf4002.html
+"""
+
 from ..register import Register, Field
 from .device import device
 

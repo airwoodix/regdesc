@@ -1,3 +1,8 @@
+"""
+AD9910 GSps Direct Digital Synthesizer
+https://www.analog.com/en/products/ad9910.html
+"""
+
 from ..register import Field, Register
 from .device import device
 
