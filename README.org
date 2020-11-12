@@ -2,13 +2,13 @@
 
 =regdesc= is
 
-1. a simple framework to *describe hardware register maps* with Python
+- a simple framework to *describe hardware register maps* with Python
 
    ... see the already described [[file:regdesc/devices][devices]]. Use a real programming language (Python) to describe your register maps!
 
    Pull requests adding chip support are very welcome! Please always add simple sanity checks in [[file:regdesc/tests][regdesc/tests]].
 
-2. a pythonic *register value calculator*
+- a pythonic *register value calculator*
 
    ... based on Python [[https://docs.python.org/3/howto/descriptor.html][descriptors]]
 
@@ -58,7 +58,7 @@ Function latch:
  'timer_counter_control': '0x0'}
 #+end_example
 
-3. (not yet) a *code generator*
+- (not yet) a *code generator*
 
    ... to generate register access code in your favorite language, also in no-magic Python.
 
