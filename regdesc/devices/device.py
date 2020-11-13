@@ -1,21 +1,23 @@
 import inspect
 from ..utils import get_object_registers, camel_to_snake
-from ..register import Register
 
 
-def device(cls=None, /, *, mod=None, regs=None):
+def device(cls=None, /, *, obj=None, regs=None):
     """
     Fill a class with Register objects.
 
-    :param `mod`: module to inspect to find register definitions. If ``None``, the caller's module except if ``regs`` is given.
-    :param `regs`: register definitions as dict {name: reg_class}
+    :param `obj`: object to inspect to find register definitions.
+    :param `regs`: register definitions as dict {name: reg_class} (overrides those maybe found in ``obj``)
+
+    If both ``obj`` and ``regs`` are ``None``, ``obj`` defaults to the caller's module.
+    If ``obj`` doesn't contain any register definitions, ``cls`` is searched for some.
     """
-    if mod is None and regs is None:
+    if obj is None and regs is None:
         caller_frame = inspect.stack()[1]
-        mod = inspect.getmodule(caller_frame[0])
+        obj = inspect.getmodule(caller_frame[0])
 
     def wrap(cls):
-        return _process_class(cls, mod, regs)
+        return _process_class(cls, obj, regs)
 
     if cls is None:
         return wrap
@@ -23,12 +25,13 @@ def device(cls=None, /, *, mod=None, regs=None):
     return wrap(cls)
 
 
-def _process_class(cls, mod, regs):
+def _process_class(cls, obj, regs):
     if regs is None:
-        regs = {}
+        if obj is not None:
+            regs = get_object_registers(obj)
 
-    if mod is not None:
-        regs = get_object_registers(mod)
+        if not regs:
+            regs = get_object_registers(cls)
 
     setattr(cls, "_regs", regs)
     setattr(cls, "__init__", _device_init)  # FIXME: don't override existing __init__
