@@ -1,5 +1,5 @@
 import inspect
-from ..utils import is_strict_subclass_pred, camel_to_snake
+from ..utils import get_object_registers, camel_to_snake
 from ..register import Register
 
 
@@ -28,12 +28,10 @@ def _process_class(cls, mod, regs):
         regs = {}
 
     if mod is not None:
-        regs = {
-            k: v for k, v in inspect.getmembers(mod, is_strict_subclass_pred(Register))
-        }
+        regs = get_object_registers(mod)
 
     setattr(cls, "_regs", regs)
-    setattr(cls, "__init__", _device_init)  # FIXME: don't override existint __init__
+    setattr(cls, "__init__", _device_init)  # FIXME: don't override existing __init__
 
     return cls
 
