@@ -7,17 +7,20 @@ def device(cls=None, /, *, obj=None, regs=None):
     Fill a class with Register objects.
 
     :param `obj`: object to inspect to find register definitions.
-    :param `regs`: register definitions as dict {name: reg_class} (overrides those maybe found in ``obj``)
+    :param `regs`: register definitions as dict {name: reg_class}.
 
-    If both ``obj`` and ``regs`` are ``None``, ``obj`` defaults to the caller's module.
-    If ``obj`` doesn't contain any register definitions, ``cls`` is searched for some.
+    Register definitions are searched for in the following order.
+    The first non-empty set is used.
+        1. ``regs`` (as-is)
+        2. ``obj``
+        3. the decorated class
+        4. the caller's module
     """
-    if obj is None and regs is None:
-        caller_frame = inspect.stack()[1]
-        obj = inspect.getmodule(caller_frame[0])
+    caller_frame = inspect.stack()[1]
+    caller_module = inspect.getmodule(caller_frame[0])
 
     def wrap(cls):
-        return _process_class(cls, obj, regs)
+        return _process_class(cls, obj, caller_module, regs)
 
     if cls is None:
         return wrap
@@ -25,13 +28,13 @@ def device(cls=None, /, *, obj=None, regs=None):
     return wrap(cls)
 
 
-def _process_class(cls, obj, regs):
-    if regs is None:
-        if obj is not None:
-            regs = get_object_registers(obj)
-
-        if not regs:
-            regs = get_object_registers(cls)
+def _process_class(cls, obj, mod, regs):
+    regs = (
+        regs
+        or get_object_registers(obj)
+        or get_object_registers(cls)
+        or get_object_registers(mod)
+    )
 
     setattr(cls, "_regs", regs)
     setattr(cls, "__init__", _device_init)  # FIXME: don't override existing __init__

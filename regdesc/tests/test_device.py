@@ -25,19 +25,23 @@ class ModDevice:
     pass
 
 
-class _Empty:
-    pass
-
-
-# emulate an empty module to force
-# Register search in the decorated class
-@device(obj=_Empty)
+@device
 class ClassDevice:
     class Reg25(Register):
         __address__ = 25
 
         f0 = Field(16, reset=123)
         f1 = Field(2, reset=1, readonly=True)
+
+    class Reg26(Register):
+        __address__ = 26
+
+        f12 = Field(12, reset=42)
+
+    class Reg42(Register):
+        __address__ = 42
+
+        f0 = Field()
 
 
 class TestDevice(unittest.TestCase):
@@ -54,8 +58,10 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(len(self.mod_dev.regs), 2)
 
     def test_decorator_class(self):
-        self.assertEqual(len(self.class_dev.regs), 1)
+        self.assertEqual(len(self.class_dev.regs), 3)
         self.assertEqual(self.class_dev.reg25.f0, 123)
+        self.assertEqual(self.class_dev.reg26.f12, 42)
+        self.assertEqual(self.class_dev.reg42.f0, 0)
 
     def test_access_by_address(self):
         self.assertIsInstance(self.mod_dev.regs[0], Reg0)
