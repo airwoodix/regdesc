@@ -58,8 +58,29 @@ Function latch:
  'timer_counter_control': '0x0'}
 #+end_example
 
-- (not yet) a *code generator*
+- a *code generator*
 
-   ... to generate register access code in your favorite language, also in no-magic Python.
+   ... to generate register manipulation code in your favorite language, also in no-magic Python.
 
-   This functionality is similar to [[https://github.com/google/cyanobyte][cyanobyte]]. =regdesc= however only calculates register values and does not handle the communication with the device, which provides more platform independence.
+   Based on [[https://palletsprojects.com/p/jinja/][jinja2]] templates and a dictionary-based intermediate representation.
+
+   The =regdesc-serialize= tool emits a JSON representation of the registers described in a given module in =regdesc.devices=:
+
+#+begin_src bash
+  regdesc-serialize adf4002 -o adf4002_registers.json
+#+end_src
+
+The =regdesc-codegen= tool loads a module from =regdesc.devices= or a JSON representation and renders a template (packaged in [[file:regdesc/codegen/templates][regdesc.codegen.templates]] or custom):
+
+#+begin_src bash
+  regdesc-codegen adf5356 -t artiq_c_like.tpl.py
+#+end_src
+
+By default, rendered templates are re-formatted using an automatic formatting tool (see [[file:regdesc/codegen/template.py][=AUTO_FORMATTERS= in template.py]] This can be deactivated with the =-n= switch.
+
+
+** Similar packages
+
+- [[https://gitlab.com/registerMap/registermap][registerMap]] (YAML-based description, C/C++ exports)
+- [[https://github.com/google/cyanobyte][cyanobyte]] (YAML-based description, full driver, multi-language exports)
+- [[https://github.com/Noah-Huppert/py-i2c-register][py-i2c-register]] (Python-based description, full driver, I2C-oriented)
