@@ -2,11 +2,19 @@ import argparse
 import jinja2
 import json
 from pathlib import Path
+import re
 import shlex
 import subprocess
 import sys
 
 from . import ir
+
+
+AUTO_FORMATTERS = {
+    r"\.py$": "black - -q",
+    r"\.(h|hxx|hpp|c|cc|cpp|cxx|)$": "clang-format",
+    r"\.rs$": "rustfmt",
+}
 
 
 def get_arguments():
@@ -35,6 +43,14 @@ def get_template(spec, **jinja_env_args):
     return tpl
 
 
+def get_formatter_cmd_for_template(tpl):
+    for rx, cmd in AUTO_FORMATTERS.items():
+        if re.search(rx, tpl.filename) is not None:
+            return shlex.split(cmd)
+    else:
+        raise NotImplementedError
+
+
 def ep_codegen():
     args = get_arguments()
 
@@ -60,7 +76,7 @@ def ep_codegen():
         print(rendered_template, file=args.output)
     else:
         subprocess.run(
-            shlex.split("black - -q"),
+            get_formatter_cmd_for_template(tpl),
             input=rendered_template.encode(),
             stdout=args.output,
         )
