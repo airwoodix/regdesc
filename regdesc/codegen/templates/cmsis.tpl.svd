@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device schemaVersion="1.3"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+	xs:noNamespaceSchemaLocation="CMSIS-SVD.xsd">
+  <name>{{ device }}</name>
+  <description>{{ description }}</description>
+  <peripherals>
+    <peripheral>
+      <name>regs</name>
+      <baseAddress>0</baseAddress>
+      <registers>
+	{% for reg in registers %}
+	<register>
+	  <name>{{ reg.name|camel_to_snake }}</name>
+	  {% if reg.description is not none -%}
+	  <description>{{ reg.description }}</description>
+	  {%- endif %}
+	  <addressOffset>{{ reg.address }}</addressOffset>
+	  <size>{{ reg.width }}</size>
+	  <resetValue>{{ reg.reset }}</resetValue>
+	  <fields>
+	    {%- for field in reg.fields %}
+	    <field>
+	      <name>{{ field.name }}</name>
+	      {% if field.doc is not none -%}
+	      <description>{{ field.doc }}</description>
+	      {%- endif %}
+	      <bitOffset>{{ field.shift }}</bitOffset>
+	      <bitWidth>{{ field.width }}</bitWidth>
+	      {%- if field.readonly -%}
+	      <access>read-only</access>
+	      {%- else -%}
+	      <access>read-write</access>
+	      {%- endif %}
+	    </field>
+	    {% endfor -%}
+	  </fields>
+	</register>
+	{% endfor %}
+      </registers>
+    </peripheral>
+  </peripherals>
+</device>
