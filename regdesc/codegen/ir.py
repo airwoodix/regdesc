@@ -28,6 +28,7 @@ def serialize(obj, *, keep_reserved_fields=True):
         registers.append(
             dict(
                 name=reg_name,
+                description=reg.__doc__.strip() if reg.__doc__ else None,
                 address=reg.__address__,
                 width=reg.__width__,
                 reset=reg.__reset__,
@@ -37,6 +38,7 @@ def serialize(obj, *, keep_reserved_fields=True):
 
     return dict(
         device=obj.__name__.split(".")[-1],
+        description=obj.__doc__.strip() if obj.__doc__ else None,
         registers=list(sorted(registers, key=operator.itemgetter("address"))),
     )
 
