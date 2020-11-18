@@ -19,6 +19,7 @@ setup(
         "console_scripts": [
             "regdesc-serialize = regdesc.codegen.ir:ep_emit_json",
             "regdesc-codegen = regdesc.codegen.template:ep_codegen",
+            "regdesc-gen-rs-pac = regdesc.codegen.rust_dummy_pac:ep_rust_dummy_pac",
         ],
     },
 )
