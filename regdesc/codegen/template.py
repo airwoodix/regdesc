@@ -56,19 +56,26 @@ def get_formatter_cmd_for_template(tpl):
         raise NotImplementedError
 
 
+def get_device_desc(device):
+    try:
+        with Path(device).open() as fp:
+            return json.load(fp)
+    except FileNotFoundError:
+        try:
+            return ir.serialize(device, keep_reserved_fields=False)
+        except ImportError:
+            raise ValueError(f"Device not found: '{device}'") from None
+    except json.JSONDecodeError as e:
+        raise IOError(f"Failed reading {device}: {e}")
+
+
 def ep_codegen():
     args = get_arguments()
 
     try:
-        with Path(args.device).open() as fp:
-            device_desc = json.load(fp)
-    except FileNotFoundError:
-        try:
-            device_desc = ir.serialize(args.device, keep_reserved_fields=False)
-        except ImportError:
-            sys.exit(f"Device not found: '{args.device}'")
-    except json.JSONDecodeError as e:
-        sys.exit(f"Failed reading {args.device}: {e}")
+        device_desc = get_device_desc(args.device)
+    except (ValueError, IOError) as e:
+        sys.exit(str(e))
 
     try:
         tpl = get_template(args.template)
