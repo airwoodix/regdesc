@@ -1,5 +1,5 @@
 import unittest
-from regdesc import Field, Register
+from regdesc import Field, Register, unsafe
 
 
 class TestRegAddrInReg(Register):
@@ -23,11 +23,18 @@ class TestReg(Register):
     f3 = Field(15)
 
 
+class TestRegWithVariants(Register):
+    __address__ = 0x1
+
+    f0 = Field(2, variants={"enable": 1, "disable": 0}, reset="enable")
+
+
 class TestRegister(unittest.TestCase):
     def setUp(self):
         self.reg_addr = TestRegAddrInReg()
         self.reg_cb = TestRegCBInReg()
         self.reg = TestReg()
+        self.reg_var = TestRegWithVariants()
 
     def test_address(self):
         self.assertEqual(self.reg.__address__, 0xE)
@@ -85,5 +92,45 @@ class TestRegister(unittest.TestCase):
             self.assertIsInstance(val, str)
             self.assertTrue(val.lower().startswith("0x"))
 
-        for val in self.reg.fields(hex_values=False).values():
+        for val in self.reg.fields(output="dec").values():
             self.assertIsInstance(val, int)
+
+    def test_reset_with_variants(self):
+        self.assertEqual(self.reg_var.__reset__, 1)
+
+    def test_set_variant(self):
+        self.reg_var.f0 = "disable"
+        self.assertEqual(self.reg_var.value, 0)
+
+    def test_get_variant(self):
+        self.assertEqual(self.reg_var.f0, "enable")
+        self.reg_var.f0 = "disable"
+        self.assertEqual(self.reg_var.f0, "disable")
+
+    def test_reject_literals_when_using_variants(self):
+        with self.assertRaisesRegex(KeyError, "invalid"):
+
+            class BadReg(Register):
+                __address__ = 1
+
+                f0 = Field(1, variants={"enable": 1}, reset="invalid")
+
+        with self.assertRaises(KeyError):
+            self.reg_var.f0 = 1
+
+    def test_set_variant_unsafe(self):
+        self.reg_var.f0 = "disable"  # cleanup state
+        self.reg_var.f0 = unsafe(1)
+        self.assertEqual(self.reg_var.f0, "enable")
+
+    def test_field_process_values_variant(self):
+        class Reg(Register):
+            __address__ = 1
+
+            f0 = Field(1, variants={"enable": 1, "disable": 0}, reset="enable")
+            f1 = Field(12, reset=0x20)
+
+        r = Reg()
+        self.assertEqual(r.fields(), {"f0": "0x1", "f1": "0x20"})
+        self.assertEqual(r.fields(output="dec"), {"f0": 1, "f1": 32})
+        self.assertEqual(r.fields(output="variant"), {"f0": "enable", "f1": 32})
