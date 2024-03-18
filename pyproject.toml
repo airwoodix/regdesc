@@ -1,2 +1,32 @@
+[project]
+name = "regdesc"
+version = "0.1.0"
+description = "Pythonic hardware register descriptors."
+license = "GPL-3.0"
+authors = [
+    { name = "Etienne Wodey", email = "airwoodix@posteo.me" }
+]
+dependencies = [
+  "jinja2>=1",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[project.scripts]
+regdesc-serialize = "regdesc.codegen.ir:ep_emit_json"
+regdesc-codegen = "regdesc.codegen.template:ep_codegen"
+regdesc-gen-rs-pac = "regdesc.codegen.rust_dummy_pac:ep_rust_dummy_pac"
+
 [build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["regdesc"]
