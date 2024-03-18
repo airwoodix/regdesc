@@ -52,9 +52,7 @@ class CFR2(Register):
 
     fm_gain = Field(4, doc="FM gain")
     parallel_data_port_enable = Field(doc="Parallel data port enable")
-    sync_timing_validation_disable = Field(
-        reset=1, doc="Sync timing validation disable"
-    )
+    sync_timing_validation_disable = Field(reset=1, doc="Sync timing validation disable")
     data_assembler_hold_last_value = Field(doc="Data assembler hold last value")
     matched_latency_enable = Field(doc="Matched latency enable")
 

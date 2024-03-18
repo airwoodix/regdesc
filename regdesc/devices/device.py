@@ -30,10 +30,7 @@ def device(cls=None, /, *, obj=None, regs=None):
 
 def _process_class(cls, obj, mod, regs):
     regs = (
-        regs
-        or get_object_registers(obj)
-        or get_object_registers(cls)
-        or get_object_registers(mod)
+        regs or get_object_registers(obj) or get_object_registers(cls) or get_object_registers(mod)
     )
 
     setattr(cls, "_regs", regs)

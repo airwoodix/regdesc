@@ -8,6 +8,7 @@ from regdesc.devices import ad5781
 def is_register(obj):
     return inspect.isclass(obj) and issubclass(obj, Register) and obj is not Register
 
+
 _regs = {name: obj for name, obj in inspect.getmembers(ad5781, is_register)}
 
 

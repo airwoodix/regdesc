@@ -55,9 +55,7 @@ def emit_json(device, output_file):
 def ep_emit_json():
     parser = argparse.ArgumentParser()
     parser.add_argument("device")
-    parser.add_argument(
-        "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
-    )
+    parser.add_argument("-o", "--output", type=argparse.FileType("w"), default=sys.stdout)
     args = parser.parse_args()
 
     try:
