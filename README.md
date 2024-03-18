@@ -14,49 +14,49 @@
 
     For example:
 
-    ```python
-    from pprint import pprint
-    from regdesc.devices.adf4002 import ADF4002
+```python
+from pprint import pprint
+from regdesc.devices.adf4002 import ADF4002
 
-    pll = ADF4002()
-    pll.r_counter_latch.r_counter = 10
-    pll.n_counter_latch.n_counter = 100
+pll = ADF4002()
+pll.r_counter_latch.r_counter = 10
+pll.n_counter_latch.n_counter = 100
 
-    f_ref = 10e6  # 10 MHz reference frequency
-    print(f"PFD frequency: {pll.f_pfd(f_ref)/1e6:.0f} MHz")
-    print(f"VCO frequency: {pll.f_vco(f_ref)/1e6:.0f} MHz")
+f_ref = 10e6  # 10 MHz reference frequency
+print(f"PFD frequency: {pll.f_pfd(f_ref)/1e6:.0f} MHz")
+print(f"VCO frequency: {pll.f_vco(f_ref)/1e6:.0f} MHz")
 
-    pll.function_latch.muxout_ctrl = 1  # digital lock-detect
+pll.function_latch.muxout_ctrl = 1  # digital lock-detect
 
-    # show a register's field values
-    print()
-    print("Function latch:")
-    pprint(pll.function_latch.fields())
+# show a register's field values
+print()
+print("Function latch:")
+pprint(pll.function_latch.fields())
 
-    # access a register's value, e.g. for writing
-    mcu.write_adf4002_reg(pll.function_latch.value)
-	```
+# access a register's value, e.g. for writing
+mcu.write_adf4002_reg(pll.function_latch.value)
+```
 
 prints
 
-    ```
-    PFD frequency: 1 MHz
-    VCO frequency: 100 MHz
+```
+PFD frequency: 1 MHz
+VCO frequency: 100 MHz
 
-    Function latch:
-    {'control_bits': '0x2',
-     'counter_reset': '0x0',
-     'cp_three_state': '0x0',
-     'current_setting_1': '0x7',
-     'current_setting_2': '0x7',
-     'fastlock_enable': '0x0',
-     'fastlock_mode': '0x0',
-     'muxout_ctrl': '0x1',
-     'pd_polarity': '0x1',
-     'power_down_1': '0x0',
-     'power_down_2': '0x0',
-     'timer_counter_control': '0x0'}
-	 ```
+Function latch:
+{'control_bits': '0x2',
+ 'counter_reset': '0x0',
+ 'cp_three_state': '0x0',
+ 'current_setting_1': '0x7',
+ 'current_setting_2': '0x7',
+ 'fastlock_enable': '0x0',
+ 'fastlock_mode': '0x0',
+ 'muxout_ctrl': '0x1',
+ 'pd_polarity': '0x1',
+ 'power_down_1': '0x0',
+ 'power_down_2': '0x0',
+ 'timer_counter_control': '0x0'}
+```
 
 -   a **code generator**
 
@@ -66,15 +66,15 @@ prints
 
     The `regdesc-serialize` tool emits a JSON representation of the registers described in a given module in `regdesc.devices`:
 
-    ```bash
-    regdesc-serialize adf4002 -o adf4002_registers.json
-	```
+```shell
+regdesc-serialize adf4002 -o adf4002_registers.json
+```
 
 The `regdesc-codegen` tool loads a module from `regdesc.devices` or a JSON representation and renders a template (packaged in [regdesc.codegen.templates](regdesc/codegen/templates) or custom):
 
-    ```
-    regdesc-codegen adf5356 -t artiq_c_like.tpl.py
-	```
+```shell
+regdesc-codegen adf5356 -t artiq_c_like.tpl.py
+```
 
 By default, rendered templates are re-formatted using an automatic formatting tool (see [AUTO<sub>FORMATTERS</sub> in template.py](regdesc/codegen/template.py) This can be deactivated with the `-n` switch.
 
@@ -86,9 +86,9 @@ By default, svd2rust generates code that maps the target device's memory directl
 
 The `regdesc-gen-rs-pac` tool generates such bindings with the target's memory emulated as an array on the stack:
 
-    ```bash
-    regdesc-gen-rs-pac <device> <output_directory>
-	```
+```shell
+regdesc-gen-rs-pac <device> <output_directory>
+```
 
 The `<output_directory>` will contain the PAC and shouldn't exist beforehand (or at least be empty).
 
@@ -100,28 +100,25 @@ This tool is very experimental and has the following dependencies:
 
 Example usage ([API documentation](https://docs.rs/svd2rust/0.17.0/svd2rust/#peripheral-api)):
 
-    ```rust
-    use adf5356_regs::Peripherals;
+ ```rust
+use adf5356_regs::Peripherals;
 
-    fn main() {
-        if let Some(dev) = Peripherals::take() {
-            // there's only one peripheral: REGS
-            let regs = &dev.REGS;
-
-            // FIXME: the memory is zero-initialized, so need to manually reset()
-            // or write() to load the reset value
-            regs.r1().reset();
-            assert_eq!(regs.r1().read().bits(), 1);
-
-            regs.r2()
-                .write(|w| unsafe { w.aux_mod_lsb_value().bits(1).aux_frac_lsb_value().bits(42) });
-            assert_eq!(regs.r2().read().bits(), 2 | (1 << 4) | (42 << 18));
-
-            regs.r13().write(|w| unsafe { w.aux_frac_msb_value().bits(0x3fff) });
-            assert_eq!(regs.r13().read().aux_frac_msb_value().bits(), 0x3fff);
-        }
-    }
-    ```
+fn main() {
+    if let Some(dev) = Peripherals::take() {
+        // there's only one peripheral: REGS
+        let regs = &dev.REGS;
+        // FIXME: the memory is zero-initialized, so need to manually reset()
+        // or write() to load the reset value
+        regs.r1().reset();
+        assert_eq!(regs.r1().read().bits(), 1);
+        regs.r2()
+            .write(|w| unsafe { w.aux_mod_lsb_value().bits(1).aux_frac_lsb_value().bits(42) });
+        assert_eq!(regs.r2().read().bits(), 2 | (1 << 4) | (42 << 18));
+        regs.r13().write(|w| unsafe { w.aux_frac_msb_value().bits(0x3fff) });
+        assert_eq!(regs.r13().read().aux_frac_msb_value().bits(), 0x3fff);
+   }
+}
+```
 
 ## Similar packages
 
