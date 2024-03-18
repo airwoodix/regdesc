@@ -1,2 +1,51 @@
+[project]
+name = "regdesc"
+version = "0.1.0"
+description = "Pythonic hardware register descriptors."
+readme = "README.md"
+license = "GPL-3.0"
+authors = [
+    { name = "Etienne Wodey", email = "airwoodix@posteo.me" }
+]
+requires-python = ">= 3.8"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+  "jinja2>=1",
+]
+[project.scripts]
+regdesc-codegen = "regdesc.codegen.template:ep_codegen"
+regdesc-gen-rs-pac = "regdesc.codegen.rust_dummy_pac:ep_rust_dummy_pac"
+regdesc-serialize = "regdesc.codegen.ir:ep_emit_json"
+
 [build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+build-backend = "hatchling.build"
+requires = [
+  "hatchling",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["regdesc"]
+
+[tool.ruff]
+line-length = 100
+target-version = 'py38'
+extend-exclude = [
+  "*.tpl.py",  # Python template files, contains Jinja2 syntax.
+]
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "pyproject-fmt>=1.7.0",
+    "ruff>=0.3.3",
+]

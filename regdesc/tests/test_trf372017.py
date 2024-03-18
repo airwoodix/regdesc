@@ -1,5 +1,4 @@
 import unittest
-from math import ceil
 from regdesc.devices import trf372017
 
 _regnames = [f"R{n}" for n in range(1, 8)]

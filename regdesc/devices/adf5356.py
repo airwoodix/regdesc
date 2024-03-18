@@ -158,9 +158,7 @@ class ADF5356:
         )
 
     def r_params(self):
-        return SimpleNamespace(
-            d=self.r4.r_doubler, r=self.r4.r_counter, t=self.r4.r_divider
-        )
+        return SimpleNamespace(d=self.r4.r_doubler, r=self.r4.r_counter, t=self.r4.r_divider)
 
     def muxout_ctrl(self):
         return [

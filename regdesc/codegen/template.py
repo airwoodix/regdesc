@@ -24,9 +24,7 @@ def get_arguments():
     parser.add_argument("device")
     parser.add_argument("-t", "--template", required=True)
     parser.add_argument("-n", "--no-auto-format", action="store_true")
-    parser.add_argument(
-        "-o", "--output", type=argparse.FileType("w"), default=sys.stdout
-    )
+    parser.add_argument("-o", "--output", type=argparse.FileType("w"), default=sys.stdout)
 
     return parser.parse_args()
 

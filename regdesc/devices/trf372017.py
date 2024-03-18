@@ -15,26 +15,20 @@ class R1(Register):
     neg_vco = Field(1, reset=1, doc="VCO polarity control; 1 = negative slope")
     icp = Field(5, reset=10, doc="Charge pump current")
     icpdouble = Field(1, doc="1 = set ICP to double the current")
-    cal_clk_sel = Field(
-        4, reset=8, doc="mult/div for VCO calibration clock from PFD frequency"
-    )
+    cal_clk_sel = Field(4, reset=8, doc="mult/div for VCO calibration clock from PFD frequency")
     _rsv1 = Field(1, readonly=True)
 
 
 class R2(Register):
     address = Field(5, reset=0xA, readonly=True)
     nint = Field(16, reset=0x80, doc="PLL N-divider division setting")
-    pll_div_sel = Field(
-        2, reset=1, doc="Division ratio of divider in front of prescaler"
-    )
+    pll_div_sel = Field(2, reset=1, doc="Division ratio of divider in front of prescaler")
     prsc_sel = Field(1, reset=1, doc="Set prescaler modulus")
     _rsv = Field(2, readonly=True)
     vco_sel = Field(2, reset=2, doc="Select VCO")
     vcosel_mode = Field(1, doc="Enable single VCO auto-calibration mode")
     cal_acc = Field(2, doc="Error count during the cap array calibration")
-    en_cal = Field(
-        1, doc="Execute a VCO frequency auto-calibration. Resets automatically"
-    )
+    en_cal = Field(1, doc="Execute a VCO frequency auto-calibration. Resets automatically")
 
 
 class R3(Register):
@@ -53,16 +47,10 @@ class R4(Register):
     pwd_presc = Field(1, doc="Power-down programmable prescaler")
     _rsv = Field(1, readonly=True)
     pwd_out_buff = Field(1, reset=1, doc="Power-down output buffer")
-    pwd_lo_div = Field(
-        1, reset=1, doc="Power-down frequency divider in LO output chain"
-    )
-    pwd_tx_div = Field(
-        1, reset=1, doc="Power-down frequency divider in modulator chain"
-    )
+    pwd_lo_div = Field(1, reset=1, doc="Power-down frequency divider in LO output chain")
+    pwd_tx_div = Field(1, reset=1, doc="Power-down frequency divider in modulator chain")
     pwd_bb_vcm = Field(1, reset=1, doc="Power-down baseband input DC common block")
-    pwd_dc_off = Field(
-        1, reset=1, doc="Power-down baseband input DC offset control block"
-    )
+    pwd_dc_off = Field(1, reset=1, doc="Power-down baseband input DC offset control block")
     en_extvco = Field(1, doc="Enable external LO/VCO input buffer")
     en_isource = Field(1, doc="Enable offset current at charge pumpt output")
     ld_ana_prec = Field(2, doc="Analog lock-detect precision")
