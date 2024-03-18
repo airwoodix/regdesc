@@ -23,7 +23,17 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "pyproject-fmt>=1.7.0",
+    "ruff>=0.3.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = 'py38'
+extend-exclude = [
+  "*.tpl.py",  # Python template files, contains Jinja2 syntax.
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
