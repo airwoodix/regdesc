@@ -23,3 +23,7 @@ repos:
     rev: "1.7.0"
     hooks:
       - id: pyproject-fmt
+  - repo: https://github.com/crate-ci/typos
+    rev: "v1.22.8"
+    hooks:
+      - id: typos
