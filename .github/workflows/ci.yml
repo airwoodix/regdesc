@@ -1,0 +1,29 @@
+name: Test and build
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  test:
+    name: Test and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eifinger/setup-rye@v3
+      - name: Install dependencies
+        run: |
+          rye sync
+      - name: Spellcheck
+        run: |
+          rye run typos .
+      - name: Check format
+        run: |
+          rye fmt --check
+          rye run pyproject-fmt --check .
+      - name: Lint
+        run: |
+          rye lint
+      - name: Build
+        run: |
+          rye build
