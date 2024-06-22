@@ -3,17 +3,22 @@ from regdesc import Field, Register
 
 
 class TestRegAddrInReg(Register):
+    __test__ = False  # prevent test collection
+
     address = Field(2, reset=2, readonly=True)
     f0 = Field(12, reset=12)
 
 
 class TestRegCBInReg(Register):
+    __test__ = False  # prevent test collection
+
     control_bits = Field(3, reset=5, readonly=True)
     f0 = Field(12, reset=12)
     f1 = Field(14, reset=1234)
 
 
 class TestReg(Register):
+    __test__ = False  # prevent test collection
     __address__ = 0xE
 
     f0 = Field(12, reset=12)
