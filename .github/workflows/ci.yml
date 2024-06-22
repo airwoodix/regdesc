@@ -1,12 +1,12 @@
-name: Test and build
+name: Lint, Build, Test
 on:
   pull_request:
   push:
     branches:
       - master
 jobs:
-  test:
-    name: Test and build
+  lint-build:
+    name: Lint and build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,3 +27,7 @@ jobs:
       - name: Build
         run: |
           rye build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: regdesc-build
+          path: dist/
