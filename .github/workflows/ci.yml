@@ -31,3 +31,27 @@ jobs:
         with:
           name: regdesc-build
           path: dist/
+  test:
+    name: Test
+    needs: lint-build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: regdesc-build
+          path: dist/
+      - name: Install test runner
+        run: |
+          pip install pytest
+      - name: Install source package
+        run: |
+          pip install dist/regdesc-*.tar.gz
+      - name: Test
+        run: |
+          pytest --pyargs regdesc.tests
